@@ -1,3 +1,4 @@
+// Package sslproxies is a scraper for finding proxies based on sslproxies.org
 package sslproxies
 
 import (
@@ -8,7 +9,8 @@ import (
 	"github.com/tamboto2000/htmltojson"
 )
 
-type Item struct {
+// Proxy contains information about a proxy
+type Proxy struct {
 	IP        string `json:"ip"`
 	Port      string `json:"port"`
 	Code      string `json:"code"`
@@ -18,13 +20,49 @@ type Item struct {
 	HTTPS     bool   `json:"https"`
 }
 
-func GetAll() ([]Item, error) {
+// GetAll get all proxies
+func GetAll() ([]Proxy, error) {
 	raw, err := request()
 	if err != nil {
 		return nil, err
 	}
 
 	return parse(raw)
+}
+
+// Get get proxies with filters.
+// Set count to 0 to get all fetched proxies,
+// set code to specify from which country this proxy originate,
+// set anon to specify the level of anonymity
+func Get(count int, code, anon string) ([]Proxy, error) {
+	proxs, err := GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	newProxs := make([]Proxy, 0)
+	for _, p := range proxs {
+		if code != "" {
+			if p.Code != code {
+				continue
+			}
+		}
+
+		if anon != "" {
+			if p.Anonymity != anon {
+				continue
+			}
+		}
+
+		newProxs = append(newProxs, p)
+		if count > 0 {
+			if len(newProxs) == count {
+				return newProxs, nil
+			}
+		}
+	}
+
+	return newProxs, nil
 }
 
 func request() ([]byte, error) {
@@ -57,7 +95,7 @@ func request() ([]byte, error) {
 	return body, nil
 }
 
-func parse(raw []byte) ([]Item, error) {
+func parse(raw []byte) ([]Proxy, error) {
 	node, err := htmltojson.ParseBytes(raw)
 	if err != nil {
 		return nil, err
@@ -73,7 +111,7 @@ func parse(raw []byte) ([]Item, error) {
 	)
 
 	if node == nil {
-		return nil, errors.New("something error, table is missing")
+		return nil, errors.New("table is missing")
 	}
 
 	nodes := htmltojson.SearchAllNode(
@@ -86,10 +124,10 @@ func parse(raw []byte) ([]Item, error) {
 	)
 
 	if nodes == nil {
-		return nil, errors.New("something error, table content is missing")
+		return nil, errors.New("table is missing")
 	}
 
-	items := make([]Item, 0)
+	items := make([]Proxy, 0)
 	for i, node := range nodes {
 		if i == 0 {
 			continue
@@ -105,14 +143,14 @@ func parse(raw []byte) ([]Item, error) {
 		)
 
 		if nodes == nil {
-			return nil, errors.New("something error, table content is missing")
+			return nil, errors.New("table is missing")
 		}
 
 		if node.Child[2].Child == nil {
 			continue
 		}
 
-		item := Item{
+		item := Proxy{
 			IP:        node.Child[0].Child[0].Data,
 			Port:      node.Child[1].Child[0].Data,
 			Code:      node.Child[2].Child[0].Data,
