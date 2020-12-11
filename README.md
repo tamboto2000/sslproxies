@@ -13,12 +13,10 @@ $ go get github.com/tamboto2000/sslproxies
 
 ### Example
 ```go
+
 package main
 
 import (
-	"encoding/json"
-	"os"
-
 	"github.com/tamboto2000/sslproxies"
 )
 
@@ -29,15 +27,13 @@ func main() {
 		panic(err.Error())
 	}
 
-	// save proxies to a file
-	f, err := os.Create("proxies.json")
-	if err != nil {
+	// save proxies
+	if err := sslproxies.Save(proxies); err != nil {
 		panic(err.Error())
 	}
 
-	defer f.Close()
-
-	if err := json.NewEncoder(f).Encode(proxies); err != nil {
+	// save proxies to custom path
+	if err := sslproxies.SaveToPath(proxies, "my_proxies.json"); err != nil {
 		panic(err.Error())
 	}
 }
