@@ -11,9 +11,10 @@ SSLProxies require Golang v14 or up
 $ go get github.com/tamboto2000/sslproxies
 ```
 
-### Example
-```go
+# Examples
 
+### Example 1
+```go
 package main
 
 import (
@@ -37,7 +38,46 @@ func main() {
 		panic(err.Error())
 	}
 }
+```
 
+### Example 2
+Load proxies from saved file
+```go
+package main
+
+import (
+	"github.com/tamboto2000/sslproxies"
+)
+
+func main() {
+	// get proxies from saved files
+	proxs, err := sslproxies.Load()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// use the proxs...
+}
+```
+
+### Example 3
+Load proxies from custom path
+```go
+package main
+
+import (
+	"github.com/tamboto2000/sslproxies"
+)
+
+func main() {
+	// get proxies from custom path
+	proxs, err := sslproxies.LoadFromPath("my_proxies.json")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// use the proxs...
+}
 ```
 
 License
