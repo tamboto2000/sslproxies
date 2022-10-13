@@ -158,8 +158,12 @@ func parse(raw []byte) ([]Proxy, error) {
 			Anonymity: node.Child[4].Child[0].Data,
 		}
 
-		if node.Child[5].Child[0].Data == "yes" {
-			item.Google = true
+		if node.Child[5].Child != nil {
+			if len(node.Child[5].Child) >= 1 {
+				if node.Child[5].Child[0].Data == "yes" {
+					item.Google = true
+				}
+			}
 		} else {
 			item.Google = false
 		}
