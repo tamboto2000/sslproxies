@@ -150,12 +150,26 @@ func parse(raw []byte) ([]Proxy, error) {
 			continue
 		}
 
-		item := Proxy{
-			IP:        node.Child[0].Child[0].Data,
-			Port:      node.Child[1].Child[0].Data,
-			Code:      node.Child[2].Child[0].Data,
-			Country:   node.Child[3].Child[0].Data,
-			Anonymity: node.Child[4].Child[0].Data,
+		var item Proxy
+
+		if node.Child[0].Child != nil {
+			item.IP = node.Child[0].Child[0].Data
+		}
+
+		if node.Child[1].Child != nil {
+			item.Port = node.Child[1].Child[0].Data
+		}
+
+		if node.Child[2].Child != nil {
+			item.Code = node.Child[2].Child[0].Data
+		}
+
+		if node.Child[3].Child != nil {
+			item.Country = node.Child[3].Child[0].Data
+		}
+
+		if node.Child[4].Child != nil {
+			item.Anonymity = node.Child[4].Child[0].Data
 		}
 
 		if node.Child[5].Child != nil {
